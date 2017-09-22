@@ -24,7 +24,7 @@ app.get('/new', function(request, response) {
 app.get('/articles', function(request, response) {
   // REVIEW: This query will join the data together from our tables and send it back to the client.
   // DONE: Write a SQL query which joins all data from articles and authors tables on the author_id value of each
-  client.query(`SELECT * FROM articles JOIN authors ON articles.author_id = authors.author_id;`)
+  client.query(`SELECT * FROM authors INNER JOIN articles ON authors.author_id = articles.author_id;`)
   .then(function(result) {
     response.send(result.rows);
   })
@@ -34,9 +34,10 @@ app.get('/articles', function(request, response) {
 });
 
 app.post('/articles', function(request, response) {
+  console.log(request.body);
   client.query(
-    'INSERT INTO authors (author, authorUrl) VALUES ($1, $2) ON CONFLICT DO NOTHING;', // DONE: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
-    [response.body.author, response.body.authorUrl], // DONE: Add the author and "authorUrl" as data for the SQL query
+    `INSERT INTO authors (author, "authorUrl") VALUES ($1, $2) ON CONFLICT DO NOTHING;`, // DONE: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
+    [request.body.author, request.body.authorUrl], // DONE: Add the author and "authorUrl" as data for the SQL query
     function(err) {
       if (err) console.error(err)
       queryTwo() // This is our second query, to be executed when this first query is complete.
@@ -45,8 +46,8 @@ app.post('/articles', function(request, response) {
 
   function queryTwo() {
     client.query(
-      `SELECT author_id FROM authors WHERE name=$1;`, // DONE: Write a SQL query to retrieve the author_id from the authors table for the new article
-      [response.body.author], // DONE: Add the author name as data for the SQL query
+      `SELECT author_id FROM authors WHERE author=$1;`, // DONE: Write a SQL query to retrieve the author_id from the authors table for the new article
+      [request.body.author], // DONE: Add the author name as data for the SQL query
       function(err, result) {
         if (err) console.error(err)
         queryThree(result.rows[0].author_id) // This is our third query, to be executed when the second is complete. We are also passing the author_id into our third query
@@ -59,10 +60,10 @@ app.post('/articles', function(request, response) {
       `INSERT INTO articles (author_id, title, category, publishedOn, body)
        VALUES ($1, $2, $3, $4, $5);`, // DONE: Write a SQL query to insert the new article using the author_id from our previous query
       [author_id,
-        response.body.title,
-        response.body.category,
-        response.body.publishedOn,
-        response.body.body], // DONE: Add the data from our new article, including the author_id, as data for the SQL query.
+        request.body.title,
+        request.body.category,
+        request.body.publishedOn,
+        request.body.body], // DONE: Add the data from our new article, including the author_id, as data for the SQL query.
       function(err) {
         if (err) console.error(err);
         response.send('insert complete');
@@ -93,7 +94,7 @@ app.put('/articles/:id', function(request, response) {
         `UPDATE articles
          SET title = $1
              category = $2
-             publishedOn = $3
+             "publishedOn" = $3
              body = $4
          WHERE article_id = $5;
         `,
