@@ -30,12 +30,12 @@ Article.loadAll = function(rows) {
 
 Article.fetchAll = function(callback) {
   $.get('/articles')
-  .then(
-    function(results) {
-      Article.loadAll(results);
-      callback();
-    }
-  )
+    .then(
+      function(results) {
+        Article.loadAll(results);
+        callback();
+      }
+    )
 };
 
 Article.truncateTable = function(callback) {
@@ -43,18 +43,18 @@ Article.truncateTable = function(callback) {
     url: '/articles',
     method: 'DELETE',
   })
-  .then(function(data) {
-    console.log(data);
-    if (callback) callback();
-  });
+    .then(function(data) {
+      console.log(data);
+      if (callback) callback();
+    });
 };
 
 Article.prototype.insertRecord = function(callback) {
   $.post('/articles', {author: this.author, authorUrl: this.authorUrl, body: this.body, category: this.category, publishedOn: this.publishedOn, title: this.title})
-  .then(function(data) {
-    console.log(data);
-    if (callback) callback();
-  })
+    .then(function(data) {
+      console.log(data);
+      if (callback) callback();
+    })
 };
 
 Article.prototype.deleteRecord = function(callback) {
@@ -62,10 +62,10 @@ Article.prototype.deleteRecord = function(callback) {
     url: `/articles/${this.article_id}`,
     method: 'DELETE'
   })
-  .then(function(data) {
-    console.log(data);
-    if (callback) callback();
-  });
+    .then(function(data) {
+      console.log(data);
+      if (callback) callback();
+    });
 };
 
 Article.prototype.updateRecord = function(callback) {
@@ -82,8 +82,8 @@ Article.prototype.updateRecord = function(callback) {
       author_id: this.author_id
     }
   })
-  .then(function(data) {
-    console.log(data);
-    if (callback) callback();
-  });
+    .then(function(data) {
+      console.log(data);
+      if (callback) callback();
+    });
 };
