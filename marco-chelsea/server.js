@@ -54,14 +54,10 @@ app.post('/articles', function(request, response) {
     )
   }
 
-  author_id SERIAL PRIMARY KEY,
-  author VARCHAR(255) UNIQUE NOT NULL,
-  "authorUrl" VARCHAR (255)
-
   function queryThree(author_id) {
     client.query(
-      `INSERT INTO authors (author_id, author, authorUrl) VALUES $1, $2, $3`, // TODO: Write a SQL query to insert the new article using the author_id from our previous query
-      [], // TODO: Add the data from our new article, including the author_id, as data for the SQL query.
+      `INSERT INTO articles (author_id, author, authorUrl) VALUES ($1, $2, $3)`, // DONE: Write a SQL query to insert the new article using the author_id from our previous query
+      [author_id, request.body.author, request.body.authorUrl], // DONE: Add the data from our new article, including the author_id, as data for the SQL query.
       function(err) {
         if (err) console.error(err);
         response.send('insert complete');
