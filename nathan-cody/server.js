@@ -6,7 +6,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 const app = express();
-const conString = '';// TODO: Don't forget to set your own conString
+const conString = 'postgres://localhost:5432/kilovolt';// DONE: Don't forget to set your own conString
 const client = new pg.Client(conString);
 client.connect();
 client.on('error', function(error) {
@@ -23,14 +23,14 @@ app.get('/new', function(request, response) {
 
 app.get('/articles', function(request, response) {
   // REVIEW: This query will join the data together from our tables and send it back to the client.
-  // TODO: Write a SQL query which joins all data from articles and authors tables on the author_id value of each
-  client.query(``)
-  .then(function(result) {
-    response.send(result.rows);
-  })
-  .catch(function(err) {
-    console.error(err)
-  });
+  // DONE: Write a SQL query which joins all data from articles and authors tables on the author_id value of each
+  client.query(`SELECT * FROM articles INNER JOIN authors ON authors.author_id=articles.author_id;`)
+    .then(function(result) {
+      response.send(result.rows);
+    })
+    .catch(function(err) {
+      console.error(err)
+    });
 });
 
 app.post('/articles', function(request, response) {
@@ -74,21 +74,21 @@ app.put('/articles/:id', function(request, response) {
     ``,
     []
   )
-  .then(function() {
-    // TODO: Write a SQL query to update an article record. Keep in mind that article records
-    // now have an author_id, in addition to title, category, publishedOn, and body.
-    // TODO: Add the required values from the request as data for the SQL query to interpolate
-    client.query(
-      ``,
-      []
-    )
-  })
-  .then(function() {
-    response.send('Update complete');
-  })
-  .catch(function(err) {
-    console.error(err);
-  })
+    .then(function() {
+      // TODO: Write a SQL query to update an article record. Keep in mind that article records
+      // now have an author_id, in addition to title, category, publishedOn, and body.
+      // TODO: Add the required values from the request as data for the SQL query to interpolate
+      client.query(
+        ``,
+        []
+      )
+    })
+    .then(function() {
+      response.send('Update complete');
+    })
+    .catch(function(err) {
+      console.error(err);
+    })
 });
 
 app.delete('/articles/:id', function(request, response) {
@@ -96,22 +96,22 @@ app.delete('/articles/:id', function(request, response) {
     `DELETE FROM articles WHERE article_id=$1;`,
     [request.params.id]
   )
-  .then(function() {
-    response.send('Delete complete');
-  })
-  .catch(function(err) {
-    console.error(err)
-  });
+    .then(function() {
+      response.send('Delete complete');
+    })
+    .catch(function(err) {
+      console.error(err)
+    });
 });
 
 app.delete('/articles', function(request, response) {
   client.query('DELETE FROM articles')
-  .then(function() {
-    response.send('Delete complete');
-  })
-  .catch(function(err) {
-    console.error(err)
-  });
+    .then(function() {
+      response.send('Delete complete');
+    })
+    .catch(function(err) {
+      console.error(err)
+    });
 });
 
 loadDB();
@@ -138,23 +138,23 @@ function loadAuthors() {
 // REVIEW: This helper function will load articles into the DB if the DB is empty
 function loadArticles() {
   client.query('SELECT COUNT(*) FROM articles')
-  .then(function(result) {
-    if(!parseInt(result.rows[0].count)) {
-      fs.readFile('./public/data/hackerIpsum.json', function(err, fd) {
-        JSON.parse(fd.toString()).forEach(function(ele) {
-          client.query(`
-            INSERT INTO
-            articles(author_id, title, category, "publishedOn", body)
-            SELECT author_id, $1, $2, $3, $4
-            FROM authors
-            WHERE author=$5;
-          `,
-            [ele.title, ele.category, ele.publishedOn, ele.body, ele.author]
-          )
+    .then(function(result) {
+      if(!parseInt(result.rows[0].count)) {
+        fs.readFile('./public/data/hackerIpsum.json', function(err, fd) {
+          JSON.parse(fd.toString()).forEach(function(ele) {
+            client.query(`
+              INSERT INTO
+              articles(author_id, title, category, "publishedOn", body)
+              SELECT author_id, $1, $2, $3, $4
+              FROM authors
+              WHERE author=$5;
+            `,
+              [ele.title, ele.category, ele.publishedOn, ele.body, ele.author]
+            )
+          })
         })
-      })
-    }
-  })
+      }
+    })
 }
 
 // REVIEW: Below are two queries, wrapped in the loadDB() function,
@@ -170,12 +170,12 @@ function loadDB() {
       "authorUrl" VARCHAR (255)
     );`
   )
-  .then(function(data) {
-    loadAuthors(data);
-  })
-  .catch(function(err) {
-    console.error(err)
-  });
+    .then(function(data) {
+      loadAuthors(data);
+    })
+    .catch(function(err) {
+      console.error(err)
+    });
 
   client.query(`
     CREATE TABLE IF NOT EXISTS
@@ -188,10 +188,10 @@ function loadDB() {
       body TEXT NOT NULL
     );`
   )
-  .then(function(data) {
-    loadArticles(data);
-  })
-  .catch(function(err) {
-    console.error(err)
-  });
+    .then(function(data) {
+      loadArticles(data);
+    })
+    .catch(function(err) {
+      console.error(err)
+    });
 }
