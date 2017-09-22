@@ -6,7 +6,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 const app = express();
-const conString = 'postgres://postgres:potato@localhost:5432/kilovolt'; // done: Don't forget to set your own conString
+const conString = 'postgres://localhost:5432/kilovolt'; // done: Don't forget to set your own conString
 const client = new pg.Client(conString);
 client.connect();
 client.on('error', function(error) {
@@ -187,7 +187,7 @@ function loadDB() {
     authors (
       author_id SERIAL PRIMARY KEY,
       author VARCHAR(255) UNIQUE NOT NULL,
-      "authorUrl" VARCHAR (255)
+      authorUrl VARCHAR (255)
     );`
   )
   .then(function(data) {
@@ -204,7 +204,7 @@ function loadDB() {
       author_id INTEGER NOT NULL REFERENCES authors(author_id),
       title VARCHAR(255) NOT NULL,
       category VARCHAR(20),
-      "publishedOn" DATE,
+      publishedOn DATE,
       body TEXT NOT NULL
     );`
   )
