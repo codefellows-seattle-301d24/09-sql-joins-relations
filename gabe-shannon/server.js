@@ -34,7 +34,6 @@ app.get('/articles', function(request, response) {
 });
 
 app.post('/articles', function(request, response) {
-  console.log(request.body);
   client.query(
     `INSERT INTO authors (author, "authorUrl") VALUES ($1, $2) ON CONFLICT DO NOTHING;`, // DONE: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
     [request.body.author, request.body.authorUrl], // DONE: Add the author and "authorUrl" as data for the SQL query
