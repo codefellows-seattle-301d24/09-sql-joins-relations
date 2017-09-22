@@ -106,6 +106,7 @@ articleView.create = function() {
 
 articleView.submit = function(event) {
   event.preventDefault();
+  console.log(event)
   let article = new Article({
     title: $('#article-title').val(),
     author: $('#article-author').val(),

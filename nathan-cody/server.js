@@ -35,7 +35,7 @@ app.get('/articles', function(request, response) {
 
 app.post('/articles', function(request, response) {
   client.query(
-    'INSERT INTO authors (author, authorUrl) VALUES ($1, $2) ON CONFLICT DO NOTHING;', [
+    'INSERT INTO authors (author, "authorUrl") VALUES ($1, $2) ON CONFLICT DO NOTHING;', [
       request.body.author,
       request.body.authorUrl
     ],
@@ -61,13 +61,14 @@ app.post('/articles', function(request, response) {
 
   function queryThree(author_id) {
     client.query(
-      `INSERT INTO articles (author_id, title, category, publishedOn) VALUES ($1, $2, $3, $4);`,
+      `INSERT INTO articles (author_id, title, category, "publishedOn", body) VALUES ($1, $2, $3, $4, $5);`,
       // DONE: Write a SQL query to insert the new article using the author_id from our previous query
       [
         author_id,
         request.body.title,
         request.body.category,
-        request.body.publishedOn
+        request.body.publishedOn,
+        request.body.body
       ],
       // DONE: Add the data from our new article, including the author_id, as data for the SQL query.
       function(err) {
