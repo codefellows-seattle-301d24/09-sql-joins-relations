@@ -35,8 +35,12 @@ app.get('/articles', function(request, response) {
 
 app.post('/articles', function(request, response) {
   client.query(
-    '', // TODO: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
-    [], // TODO: Add the author and "authorUrl" as data for the SQL query
+    'INSERT INTO authors (author, authorUrl) VALUES ($1, $2) ON CONFLICT (authors) DO NOTHING;', [
+      request.body.author,
+      request.body.authorUrl
+    ],
+    // DONE: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
+    // DONE: Add the author and "authorUrl" as data for the SQL query
     function(err) {
       if (err) console.error(err)
       queryTwo() // This is our second query, to be executed when this first query is complete.
