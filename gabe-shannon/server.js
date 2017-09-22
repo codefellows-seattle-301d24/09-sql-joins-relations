@@ -35,7 +35,7 @@ app.get('/articles', function(request, response) {
 
 app.post('/articles', function(request, response) {
   client.query(
-    'INSERT INTO authors (author, authorUrl) VALUES ($1, $2) ON CONFLICT DO NOTHING', // DONE: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
+    'INSERT INTO authors (author, authorUrl) VALUES ($1, $2) ON CONFLICT DO NOTHING;', // DONE: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
     [response.body.author, response.body.authorUrl], // DONE: Add the author and "authorUrl" as data for the SQL query
     function(err) {
       if (err) console.error(err)
@@ -45,7 +45,7 @@ app.post('/articles', function(request, response) {
 
   function queryTwo() {
     client.query(
-      `SELECT author_id FROM authors WHERE name=$1`, // DONE: Write a SQL query to retrieve the author_id from the authors table for the new article
+      `SELECT author_id FROM authors WHERE name=$1;`, // DONE: Write a SQL query to retrieve the author_id from the authors table for the new article
       [response.body.author], // DONE: Add the author name as data for the SQL query
       function(err, result) {
         if (err) console.error(err)
@@ -78,26 +78,38 @@ app.put('/articles/:id', function(request, response) {
   client.query(
     `UPDATE authors
      SET author = $1, authorUrl = $2
-     WHERE author_id = $3`,
+     WHERE author_id = (SELECT author_id
+                        FROM articles
+                        WHERE article_id = $3);`,
     [request.body.author,
       request.body.authorUrl,
       request.params.id]
   )
     .then(function() {
-    // TODO: Write a SQL query to update an article record. Keep in mind that article records
+    // DONE: Write a SQL query to update an article record. Keep in mind that article records
     // now have an author_id, in addition to title, category, publishedOn, and body.
-    // TODO: Add the required values from the request as data for the SQL query to interpolate
-    client.query(
-      ``,
-      []
-    )
-  })
-  .then(function() {
-    response.send('Update complete');
-  })
-  .catch(function(err) {
-    console.error(err);
-  })
+    // DONE: Add the required values from the request as data for the SQL query to interpolate
+      client.query(
+        `UPDATE articles
+         SET title = $1
+             category = $2
+             publishedOn = $3
+             body = $4
+         WHERE article_id = $5;
+        `,
+        [request.body.title,
+          request.body.category,
+          request.body.publishedOn,
+          request.body.body,
+          request.params.id]
+      )
+    })
+    .then(function() {
+      response.send('Update complete');
+    })
+    .catch(function(err) {
+      console.error(err);
+    })
 });
 
 app.delete('/articles/:id', function(request, response) {
