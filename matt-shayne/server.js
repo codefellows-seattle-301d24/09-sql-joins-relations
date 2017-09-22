@@ -39,7 +39,7 @@ app.post('/articles', function(request, response) {
    // TODO:DONE Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
    // TODO:DONE Add the author and "authorUrl" as data for the SQL query
   client.query(
-    `INSERT INTO authors (author, authorUrl) VALUES ($1, $2) ON CONFLICT DO NOTHING;`, [request.body.author, request.body.authorUrl],
+    `INSERT INTO authors (author, "authorUrl") VALUES ($1, $2) ON CONFLICT DO NOTHING;`, [request.body.author, request.body.authorUrl],
     function(err) {
       if (err) console.error(err)
       queryTwo() // This is our second query, to be executed when this first query is complete.
@@ -83,7 +83,7 @@ app.put('/articles/:id', function(request, response) {
   // an author_id property, so we can reference it from the request.body.
   // TODO:DONE Add the required values from the request as data for the SQL query to interpolate
   client.query(
-    `UPDATE author SET author=$1, authorUrl=$2 WHERE author_id=(SELECT author_id FROM articles WHERE article_id=$3);`,
+    `UPDATE author SET author=$1, "authorUrl"=$2 WHERE author_id=(SELECT author_id FROM articles WHERE article_id=$3);`,
     [
       request.body.author,
       request.body.authorUrl,
