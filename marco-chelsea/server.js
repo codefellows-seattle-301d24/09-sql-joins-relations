@@ -23,7 +23,7 @@ app.get('/new', function(request, response) {
 
 app.get('/articles', function(request, response) {
   // REVIEW: This query will join the data together from our tables and send it back to the client.
-  // TODO: Write a SQL query which joins all data from articles and authors tables on the author_id value of each
+  // DONE: Write a SQL query which joins all data from articles and authors tables on the author_id value of each
   client.query(`SELECT * FROM articles INNER JOIN authors ON articles.author_id = authors.author_id;`)
   .then(function(result) {
     response.send(result.rows);
@@ -35,8 +35,8 @@ app.get('/articles', function(request, response) {
 
 app.post('/articles', function(request, response) {
   client.query(
-    '', // TODO: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
-    [], // TODO: Add the author and "authorUrl" as data for the SQL query
+    '`INSERT INTO authors (author_id, author, authorUrl) VALUES ($1, $2, $3) ON CONFLICT (author) DO NOTHING;`' // DONE: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
+    [request.body.author, request.body.authorUrl], // TODO: Add the author and "authorUrl" as data for the SQL query
     function(err) {
       if (err) console.error(err)
       queryTwo() // This is our second query, to be executed when this first query is complete.
@@ -54,9 +54,13 @@ app.post('/articles', function(request, response) {
     )
   }
 
+  author_id SERIAL PRIMARY KEY,
+  author VARCHAR(255) UNIQUE NOT NULL,
+  "authorUrl" VARCHAR (255)
+
   function queryThree(author_id) {
     client.query(
-      ``, // TODO: Write a SQL query to insert the new article using the author_id from our previous query
+      `INSERT INTO authors (author_id, author, authorUrl) VALUES $1, $2, $3`, // TODO: Write a SQL query to insert the new article using the author_id from our previous query
       [], // TODO: Add the data from our new article, including the author_id, as data for the SQL query.
       function(err) {
         if (err) console.error(err);
