@@ -26,9 +26,9 @@ app.get('/articles', function(request, response) {
   // DONE: Write a SQL query which joins all data from articles and authors tables on the author_id value of each
   client.query(
    `SELECT *
-    FROM articles
-    JOIN authors
-    ON authors.author_id === articles.author_id `)
+    FROM authors
+    JOIN articles
+    ON authors.author_id = articles.author_id `)
   .then(function(result) {
     response.send(result.rows);
   })
@@ -39,7 +39,7 @@ app.get('/articles', function(request, response) {
 
 app.post('/articles', function(request, response) {
   client.query(
-    `INSERT INTO authors (author, authorUrl) VALUES ($1, $2) ON CONFLICT author DO NOTHING;`,  // DONE: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
+    `INSERT INTO authors (author, "authorUrl") VALUES ($1, $2) ON CONFLICT (author) DO NOTHING;`,  // DONE: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
     [request.body.author, request.body.authorUrl], // DONE: Add the author and "authorUrl" as data for the SQL query
     function(err) {
       if (err) console.error(err)
@@ -49,7 +49,7 @@ app.post('/articles', function(request, response) {
 
   function queryTwo() {
     client.query(
-      `SELECT author_id FROM authors WHERE author = $1;`, // DONE: Write a SQL query to retrieve the author_id from the authors table for the new article
+      `SELECT author_id FROM authors WHERE author=$1;`, // DONE: Write a SQL query to retrieve the author_id from the authors table for the new article
       [request.body.author], // DONE: Add the author name as data for the SQL query
       function(err, result) {
         if (err) console.error(err)
@@ -60,8 +60,8 @@ app.post('/articles', function(request, response) {
 
   function queryThree(author_id) {
     client.query(
-      ``, // TODO: Write a SQL query to insert the new article using the author_id from our previous query
-      [], // TODO: Add the data from our new article, including the author_id, as data for the SQL query.
+      `INSERT INTO articles (author_id, title, category, "publishedOn", body) VALUES ($1, $2, $3, $4, $5);`, // DONE: Write a SQL query to insert the new article using the author_id from our previous query
+      [author_id, request.body.title, request.body.category, request.body.publishedOn, request.body.body], // DONE: Add the data from our new article, including the author_id, as data for the SQL query.
       function(err) {
         if (err) console.error(err);
         response.send('insert complete');
@@ -71,20 +71,20 @@ app.post('/articles', function(request, response) {
 });
 
 app.put('/articles/:id', function(request, response) {
-  // TODO: Write a SQL query to update an author record. Remember that our articles now have
+  // DONE: Write a SQL query to update an author record. Remember that our articles now have
   // an author_id property, so we can reference it from the request.body.
-  // TODO: Add the required values from the request as data for the SQL query to interpolate
+  // DONE: Add the required values from the request as data for the SQL query to interpolate
   client.query(
-    ``,
-    []
+    `UPDATE authors SET (author, "authorUrl") VALUES ($1, $2) WHERE author_id = (SELECT author_id FROM articles WHERE article_id=$3);`,
+    [request.body.author, request.body.authorUrl, request.params.id]
   )
   .then(function() {
-    // TODO: Write a SQL query to update an article record. Keep in mind that article records
+    // DONE: Write a SQL query to update an article record. Keep in mind that article records
     // now have an author_id, in addition to title, category, publishedOn, and body.
-    // TODO: Add the required values from the request as data for the SQL query to interpolate
+    // DONE: Add the required values from the request as data for the SQL query to interpolate
     client.query(
-      ``,
-      []
+      `UPDATE articles SET (author, title, category, "publishedOn", body) VALUES ($1, $2, $3, $4, $5) WHERE article_id=$6 `,
+      [request.body.author, request.body.title, request.body.category, request.body.publishedOn, request.body.body, request.params.id]
     )
   })
   .then(function() {
